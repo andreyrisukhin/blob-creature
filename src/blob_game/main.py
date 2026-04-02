@@ -45,7 +45,7 @@ def main() -> None:
     )
     world.add_blob(blob)
 
-    controller = BlobController(move_force=150.0, jump_impulse=5.0)
+    controller = BlobController(move_force=600.0)
     show_debug = False
     gravity_strength = 400.0
 
@@ -67,6 +67,9 @@ def main() -> None:
                 elif event.key == pygame.K_DOWN:
                     gravity_strength += 50
                     world.gravity.y = gravity_strength
+            elif event.type == pygame.KEYUP:
+                if event.key == pygame.K_s or event.key == pygame.K_LSHIFT:
+                    controller.apply_intent(blob, "unstick")
 
         # Continuous input
         keys = pygame.key.get_pressed()
@@ -74,6 +77,11 @@ def main() -> None:
             controller.apply_intent(blob, "roll_left")
         if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
             controller.apply_intent(blob, "roll_right")
+        if keys[pygame.K_s] or keys[pygame.K_LSHIFT]:
+            controller.apply_intent(blob, "stick")
+
+        # Advance controller state machine (jump squash/release)
+        controller.update(blob)
 
         # Physics
         for _ in range(SUBSTEPS):
@@ -95,7 +103,7 @@ def main() -> None:
         fps_text = font.render(f"FPS: {clock.get_fps():.0f}", True, TEXT_COLOR)
         grav_text = font.render(f"Gravity: {gravity_strength:.0f} (Up/Down)", True, TEXT_COLOR)
         area_text = font.render(f"Area: {blob.area():.0f} / {blob.target_area:.0f}", True, TEXT_COLOR)
-        ctrl_text = font.render("A/D: move  Space: jump  Tab: debug  Up/Down: gravity", True, TEXT_COLOR)
+        ctrl_text = font.render("A/D: move  Space: jump  S/Shift: stick  Tab: debug  Up/Down: gravity", True, TEXT_COLOR)
         screen.blit(fps_text, (10, 10))
         screen.blit(grav_text, (10, 30))
         screen.blit(area_text, (10, 50))
