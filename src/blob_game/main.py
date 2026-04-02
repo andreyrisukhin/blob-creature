@@ -8,7 +8,7 @@ from blob_renderer.renderer import draw_blob, draw_debug
 WIDTH, HEIGHT = 800, 600
 FPS = 60
 PHYSICS_DT = 1.0 / 120.0
-SUBSTEPS = 2
+SUBSTEPS = 4
 
 # Colors
 BG_COLOR = (30, 30, 40)
@@ -38,13 +38,14 @@ def main() -> None:
         radius=40,
         num_points=20,
         mass=1.0,
-        spring_k=300.0,
-        pressure=60.0,
-        surface_tension=0.8,
+        spring_k=400.0,
+        spring_damping=15.0,
+        pressure=80.0,
+        surface_tension=1.5,
     )
     world.add_blob(blob)
 
-    controller = BlobController(move_force=250.0, jump_force=1000.0)
+    controller = BlobController(move_force=150.0, jump_impulse=5.0)
     show_debug = False
     gravity_strength = 400.0
 
@@ -88,7 +89,7 @@ def main() -> None:
         # Draw blob
         draw_blob(screen, blob)
         if show_debug:
-            draw_debug(screen, blob)
+            draw_debug(screen, blob, gravity=world.gravity)
 
         # HUD
         fps_text = font.render(f"FPS: {clock.get_fps():.0f}", True, TEXT_COLOR)

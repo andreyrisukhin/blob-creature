@@ -22,10 +22,11 @@ class PointMass:
     def clear_force(self) -> None:
         self.force = Vec2(0.0, 0.0)
 
-    def integrate(self, dt: float) -> None:
+    def integrate(self, dt: float, damping: float = 0.998) -> None:
         if self.pinned:
             return
         acc = self.force * (1.0 / self.mass)
-        new_pos = self.pos * 2.0 - self.old_pos + acc * (dt * dt)
+        vel = (self.pos - self.old_pos) * damping
+        new_pos = self.pos + vel + acc * (dt * dt)
         self.old_pos = self.pos.copy()
         self.pos = new_pos

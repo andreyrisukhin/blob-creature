@@ -23,14 +23,14 @@ def point_vs_segment(
     if t < 0.0 or t > edge_len:
         return False
 
-    # Normal distance (signed, positive = above segment for CCW normal)
-    normal = Vec2(-edge_dir.y, edge_dir.x)
+    # Normal pointing "upward" (away from solid side) in screen coords
+    # For a left-to-right segment, this points toward negative y (visually up)
+    normal = Vec2(edge_dir.y, -edge_dir.x)
     dist = to_point.dot(normal)
 
     if dist < 0.0:
-        # Point is below/inside the segment — push out
+        # Point has crossed to the solid side — push it back out
         point.pos += normal * (-dist)
-        # Also adjust old_pos for Verlet stability
         point.old_pos += normal * (-dist)
 
         # Apply friction: reduce tangential velocity

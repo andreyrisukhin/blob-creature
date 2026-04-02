@@ -4,18 +4,15 @@ from blob_physics.blob_body import BlobBody
 
 
 class BlobController:
-    def __init__(self, move_force: float = 200.0, jump_force: float = 800.0) -> None:
+    def __init__(self, move_force: float = 150.0, jump_impulse: float = 5.0) -> None:
         self.move_force = move_force
-        self.jump_force = jump_force
+        self.jump_impulse = jump_impulse
 
     def apply_intent(self, blob: BlobBody, intent: str, strength: float = 1.0) -> None:
-        centroid = blob.centroid()
-        n = len(blob.points)
-
         if intent == "roll_right":
-            self._apply_roll(blob, centroid, strength, direction=1.0)
+            self._apply_move(blob, strength, direction=1.0)
         elif intent == "roll_left":
-            self._apply_roll(blob, centroid, strength, direction=-1.0)
+            self._apply_move(blob, strength, direction=-1.0)
         elif intent == "jump":
             self._apply_jump(blob, strength)
         elif intent == "flatten":
@@ -23,18 +20,14 @@ class BlobController:
         elif intent == "stretch":
             blob.target_area = blob._target_area * (1.0 + 0.3 * strength)
 
-    def _apply_roll(self, blob: BlobBody, centroid: Vec2, strength: float, direction: float) -> None:
-        """Apply tangential forces to bottom points to create rolling motion."""
-        # Find bottom-most points (contact region)
-        max_y = max(p.pos.y for p in blob.points)
-        threshold = max_y - 10.0  # points within 10px of bottom
-
+    def _apply_move(self, blob: BlobBody, strength: float, direction: float) -> None:
+        """Apply horizontal force to all points — smoother than bottom-only."""
+        force = Vec2(self.move_force * strength * direction, 0.0)
         for p in blob.points:
-            if p.pos.y >= threshold:
-                # Apply horizontal force at contact points
-                p.add_force(Vec2(self.move_force * strength * direction, 0.0))
+            p.add_force(force)
 
     def _apply_jump(self, blob: BlobBody, strength: float) -> None:
-        """Apply upward impulse to all points."""
+        """Apply upward velocity impulse (directly modify old_pos for Verlet)."""
+        impulse = Vec2(0.0, -self.jump_impulse * strength)
         for p in blob.points:
-            p.add_force(Vec2(0.0, -self.jump_force * strength))
+            p.old_pos -= impulse

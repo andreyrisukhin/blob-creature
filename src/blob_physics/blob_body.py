@@ -85,7 +85,9 @@ class BlobBody:
         if current_area < 1e-6:
             return
 
-        pressure = self.pressure_constant * (self._target_area - current_area) / current_area
+        ratio = (self._target_area - current_area) / current_area
+        ratio = max(-2.0, min(2.0, ratio))  # clamp to prevent explosions
+        pressure = self.pressure_constant * ratio
         n = len(self.points)
 
         for i in range(n):
