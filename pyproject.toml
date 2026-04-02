@@ -1,0 +1,18 @@
+[project]
+name = "blob-physics"
+version = "0.1.0"
+description = "Reusable 2D soft-body blob creature physics engine"
+requires-python = ">=3.12"
+dependencies = []
+
+[project.optional-dependencies]
+pygame = ["pygame-ce>=2.4"]
+numpy = ["numpy>=1.26"]
+dev = ["pytest>=8.0", "pytest-benchmark"]
+
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[tool.setuptools.packages.find]
+where = ["src"]
